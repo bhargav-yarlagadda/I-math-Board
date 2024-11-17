@@ -16,7 +16,9 @@ const browserRouter = createBrowserRouter(paths)
 const App = () => {
   return (
     <MantineProvider>
-         <RouterProvider router={browserRouter} ></RouterProvider>
+         <RouterProvider router={browserRouter} >
+          
+         </RouterProvider>
     </MantineProvider>
   )
 }

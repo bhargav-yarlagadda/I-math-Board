@@ -15,29 +15,56 @@ const Canvas = ({
   const [isDrawing, setIsDrawing] = useState(false);
   const [lastX, setLastX] = useState(0);
   const [lastY, setLastY] = useState(0);
-  const [generatedResult, setGeneratedResult] = useState(null); // State to store generated result
+
 
   const sendData = async () => {
     const canvas = canvasRef.current;
-
+  
     if (canvas) {
-      const response = await axios({
-        method: "POST",
-        url: `${import.meta.env.VITE_API_URL}/calculate`,
-        data: {
-          image: canvas.toDataURL("image/png"),
-          dict_of_vars: dictOfVars,
-        },
-      });
-      const { message, data, status } = response.data; // Destructure response data
-      console.log(response.data);
-
-      if (status === "success" && data.length > 0) {
-        setResult(data[0]); // Set the generated result
+      try {
+        // Ensure dictOfVars is defined and is an object
+        if (!dictOfVars || typeof dictOfVars !== "object") {
+          console.error("Invalid dictionary of variables.");
+          return;
+        }
+  
+        // Convert canvas to base64 image string
+        const base64Image = canvas.toDataURL("image/png");
+  
+        // Send the image data and dictionary of variables to the backend
+        const response = await axios({
+          method: "POST",
+          url: `${import.meta.env.VITE_API_URL}/calculate`,  // Ensure this is the correct API endpoint
+          data: {
+            image: base64Image,  // Send the image data as base64
+            dict_of_vars: dictOfVars,  // Send the dictionary of variables
+          },
+        });
+  
+        // Destructure response data
+        const { message, data, status } = response.data;
+  
+        // Log the full response data for debugging
+        console.log("Response data:", response.data);
+  
+        // Handle the response based on status
+        if (status === "success" && Array.isArray(data) && data.length > 0) {
+          setResult(data[0]);  // Set the first item of data to the result
+        } else if (status === "failure") {
+          setResult(null); // Set the result to null or show an error
+          console.error("Error: No valid data received.", message);
+        }
+  
+      } catch (error) {
+        // Log any error that occurred during the request
+        console.error("Error sending image data:", error);
       }
-      // You can keep this if needed
+    } else {
+      console.error("Canvas reference is not available.");
     }
   };
+  
+  
 
   const resetCanvas = () => {
     const canvas = canvasRef.current;
