@@ -1,5 +1,6 @@
 import axios from "axios";
 import { useEffect, useRef, useState } from "react";
+import Loader from "./Loader";
 
 const Canvas = ({
   brushColor,
@@ -15,11 +16,11 @@ const Canvas = ({
   const [isDrawing, setIsDrawing] = useState(false);
   const [lastX, setLastX] = useState(0);
   const [lastY, setLastY] = useState(0);
-
+  const [loading,setLoading]=useState(false)
 
   const sendData = async () => {
     const canvas = canvasRef.current;
-  
+    setLoading(true)
     if (canvas) {
       try {
         // Ensure dictOfVars is defined and is an object
@@ -62,6 +63,9 @@ const Canvas = ({
     } else {
       console.error("Canvas reference is not available.");
     }
+
+
+    setLoading(false)
   };
   
   
@@ -82,6 +86,8 @@ const Canvas = ({
   useEffect(() => {
     if (reset) {
       resetCanvas();
+    setLoading(false)
+
       setReset(false);
     }
   }, [reset]);
@@ -137,6 +143,10 @@ const Canvas = ({
 
   return (
     <div className="w-full h-full">
+
+      {
+        loading && (<Loader/>)
+      }
       <button
         className="text-white text-[14px] bg-blue-900 h-[50px] hover:bg-opacity-80 bg-opacity-70 absolute rounded-md p-2 bottom-[5%] left-0 sm:left-10 z-20"
         onClick={sendData}
